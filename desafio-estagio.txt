@@ -1,0 +1,12 @@
+Desenvolver script para download de diários (PDFs) e salvar metadados em excel (nome do diário, data de publicação, número do diário e link quando possível)
+
+Fazer com:
+ - https://www.tjpi.jus.br/transparencia/diarios
+ - https://www.diario.pi.gov.br/doe/
+ - https://dome.parnaiba.pi.gov.br/
+
+
+Script deve permitir especificar uma data de busca. Exemplo:
+
+Data: 05/01/2026
+Resultado: download de todos os PDFs do dia 05/01/2026 para os 3 diários acima e excel identificando cada PDF baixado (metadados)
