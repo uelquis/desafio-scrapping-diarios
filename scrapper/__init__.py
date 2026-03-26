@@ -1,0 +1,1 @@
+from .diario_scrapper import DiarioScrapper
