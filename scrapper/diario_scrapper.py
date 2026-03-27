@@ -24,12 +24,13 @@ class DiarioScrapper:
     """Extrai os links dos pdfs dos diários de todas as fontes para a data fornecida."""
     def scrap(self, date):
         return [
-            self._scrap_tjpi(date)
+            self._scrap_tjpi(date),
+            self._scrap_gov_pi(date),
+            self._scrap_pref_parnaiba(date)
         ]
 
     """Extrai os pdfs dos diários do TJPI para a data fornecida."""
     def _scrap_tjpi(self, date):
-        # TODO: fazer o download do pdf dos diários do TJPI, atualmente só abre a página do pdf
 
         self.page.goto(SCRAPPER_CONFIG['diarios']['tjpi'])
 
@@ -50,6 +51,53 @@ class DiarioScrapper:
         pdf_url = new_page_info.value.url
         pdf_save_path = f"./downloads/diario_tjpi_{date.strftime('%d_%m_%Y')}.pdf"
         
+        return (pdf_url, pdf_save_path)
+
+    def _scrap_gov_pi(self, date):
+        
+        self.page.goto(SCRAPPER_CONFIG['diarios']['gov_pi'])
+
+        date_input = self.page.locator('input[type="date"]').first
+        date_input.wait_for()
+        
+        date_input.fill(date.strftime("%Y-%m-%d"))
+
+        with self.context.expect_page() as new_page_info:
+            download_btn = self.page.locator("td a").first
+            download_btn.wait_for()
+            download_btn.click()
+
+        pdf_url = new_page_info.value.url
+        pdf_save_path = f"./downloads/diario_gov_pi_{date.strftime('%d_%m_%Y')}.pdf"
+
+        return (pdf_url, pdf_save_path)
+    
+    def _scrap_pref_parnaiba(self, date):
+        
+        self.page.goto(SCRAPPER_CONFIG['diarios']['pref_parnaiba'])
+
+        date_input_inicial = self.page.locator('input[aria-label="Data Inicial"]').first
+        date_input_inicial.wait_for()
+
+        date_input_inicial.fill(date.strftime("%d-%m-%Y"))
+
+        date_input_final = self.page.locator('input[aria-label="Data Final"]').first
+        date_input_final.wait_for()
+        
+        date_input_final.fill(date.strftime("%d-%m-%Y"))
+
+        filtrar_btn = self.page.get_by_text("Filtrar").first
+        filtrar_btn.wait_for()
+        filtrar_btn.click()
+
+        with self.context.expect_page() as new_page_info:
+            download_btn = self.page.locator("button[aria-label='Abrir diário em nova aba']").first
+            download_btn.wait_for()
+            download_btn.click()
+
+        pdf_url = new_page_info.value.url
+        pdf_save_path = f"./downloads/diario_pref_parnaiba_{date.strftime('%d_%m_%Y')}.pdf"
+
         return (pdf_url, pdf_save_path)
 
     def __enter__(self):

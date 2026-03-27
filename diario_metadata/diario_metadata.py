@@ -20,11 +20,17 @@ class DiarioMetadata:
         self.link_pdf = pdf_url
 
         with pdfplumber.open(pdf_path) as pdf:
+            print("=" * 50)
             if "tjpi" in pdf_path:
                 self._extract_metadata_tjpi(pdf)
+            elif "gov_pi" in pdf_path:
+                self._extract_metadata_govpi(pdf)
+            elif "pref_parnaiba" in pdf_path:
+                self._extract_metadata_parnaiba(pdf)
+            else:
+                raise ValueError(f"Não foi possível identificar o tipo do diário com base no nome do arquivo: {pdf_path}")
         
     def _extract_metadata_tjpi(self, pdf):
-        print("=" * 50)
         print("Extraindo metadados do diário do TJPI...")
 
         first_page = pdf.pages[0]
@@ -46,6 +52,28 @@ class DiarioMetadata:
         self.data_publicacao = f"{dia.zfill(2)}-{mes.zfill(2)}-{ano}"   
 
         self.numero = re.search(r"Nº\s*\d+", text, re.IGNORECASE).group(0).removeprefix("Nº").strip()
+
+    def _extract_metadata_govpi(self, pdf):
+        print("Extraindo metadados do diário do Governo do Piauí...")
+
+        # TODO: extrair nome do diário a partir do PDF, ao invés de hardcodar
+        self.nome = "Diário Oficial Governo do Piauí"
+
+        first_page = pdf.pages[0]
+        text = first_page.extract_text()
+
+        self.numero = re.search(r"Nº\s*\d+/\d{4}", text, re.IGNORECASE).group(0).removeprefix("nº").strip()
+
+        third_page = pdf.pages[2]
+        text = third_page.extract_text()
+
+        self.data_publicacao = re.search(r"Publicado:\s*\d{2}/\d{2}/\d{4}", text, re.IGNORECASE).group(0).removeprefix("Publicado:").replace("/", "-").strip()
+
+    def _extract_metadata_parnaiba(self, pdf):
+        # raise NotImplementedError("A extração de metadados para os diários de Parnaíba ainda não foi implementada.")
+        self.nome = "N/A"
+        self.data_publicacao = "N/A"
+        self.numero = "N/A"
 
     def __str__(self):
         return f"%s\nNome: %s\nData de Publicação: %s\nNúmero: %s\nLink do PDF: %s\n%s" % (

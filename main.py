@@ -48,7 +48,7 @@ def main():
             diarios_metadata = [DiarioMetadata(pdf_url, pdf_path) for pdf_url, pdf_path in path_to_downloaded_pdfs]
 
             print("\nExportando metadados extraídos dos diários:")
-            MetadataExporter(diarios_metadata).export_to_csv()
+            MetadataExporter(diarios_metadata).export_to_xlsx()
 
 if __name__ == '__main__':
     main()
