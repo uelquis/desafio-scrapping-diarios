@@ -21,9 +21,11 @@ class DiarioScrapper:
         self.context = self.browser.new_context(user_agent=random.choice(self.user_agents), locale='pt-BR')
         self.page = self.context.new_page()
     
-    """Extrai os pdfs dos diários de todas as fontes para a data fornecida."""
+    """Extrai os links dos pdfs dos diários de todas as fontes para a data fornecida."""
     def scrap(self, date):
-        self._scrap_tjpi(date)
+        return [
+            self._scrap_tjpi(date)
+        ]
 
     """Extrai os pdfs dos diários do TJPI para a data fornecida."""
     def _scrap_tjpi(self, date):
@@ -46,25 +48,9 @@ class DiarioScrapper:
             pdf_btn.click()
 
         pdf_url = new_page_info.value.url
+        pdf_save_path = f"./downloads/diario_tjpi_{date.strftime('%d_%m_%Y')}.pdf"
         
-        try:
-            self._download_pdf(pdf_url, f"./downloads/tjpi_{date.strftime('%Y-%m-%d')}.pdf")
-        except Exception as e:
-            print(f"Error occurred while downloading PDF: {e}")
-
-    def _download_pdf(self, url, save_path):
-        os.makedirs("./downloads", exist_ok=True)
-
-        with requests.get(url, stream=True) as response:
-            if response.status_code != 200:
-                raise Exception(f"Failed to retrieve PDF: {response.status_code}")
-
-            if Path(save_path).exists():
-                raise Exception(f"PDF already exists at {save_path}, skipping download.")
-
-            with open(save_path, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    f.write(chunk)
+        return (pdf_url, pdf_save_path)
 
     def __enter__(self):
         return self
