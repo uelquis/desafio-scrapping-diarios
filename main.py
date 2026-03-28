@@ -1,3 +1,4 @@
+import re
 import os, sys, requests
 from datetime import datetime
 from pathlib import Path
@@ -13,7 +14,8 @@ def download_pdf(url, save_path):
             raise Exception(f"Failed to retrieve PDF: {response.status_code}")
 
         if Path(save_path).exists():
-            raise Exception(f"PDF already exists at {save_path}, skipping download.")
+            print(f"PDF already exists at {save_path}, skipping download.")
+            return
 
         with open(save_path, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
@@ -38,6 +40,9 @@ def main():
     
     if len(sys.argv) > 2:
         raise ValueError("Apenas um argumento é permitido, no formato DD-MM-AAAA.")
+    
+    if re.match(r'^\d{1,2}-\d{1,2}-\d{4}$', sys.argv[1]) is None:
+        raise ValueError("Formato de data inválido. Use DD-MM-AAAA.")
 
     date = datetime.strptime(sys.argv[1], "%d-%m-%Y")
 
