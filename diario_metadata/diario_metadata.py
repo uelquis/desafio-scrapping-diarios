@@ -1,79 +1,18 @@
 
-
-import re
-
-import pdfplumber
-
 """
-Extrai e armazena os seguintes metadados dos diários oficiais:
+Armazena os seguintes metadados dos diários oficiais:
     - Nome do diário
     - Data de publicação
     - Número do diário
     - Link do PDF
 """
 class DiarioMetadata:
-    def __init__(self, pdf_url, pdf_path):
+    def __init__(self, nome=None, data_publicacao=None, numero=None, pdf_url=None):
 
-        self.nome = None
-        self.data_publicacao = None
-        self.numero = None
+        self.nome = nome
+        self.data_publicacao = data_publicacao
+        self.numero = numero
         self.link_pdf = pdf_url
-
-        with pdfplumber.open(pdf_path) as pdf:
-            print("=" * 50)
-            if "tjpi" in pdf_path:
-                self._extract_metadata_tjpi(pdf)
-            elif "gov_pi" in pdf_path:
-                self._extract_metadata_govpi(pdf)
-            elif "pref_parnaiba" in pdf_path:
-                self._extract_metadata_parnaiba(pdf)
-            else:
-                raise ValueError(f"Não foi possível identificar o tipo do diário com base no nome do arquivo: {pdf_path}")
-        
-    def _extract_metadata_tjpi(self, pdf):
-        print("Extraindo metadados do diário do TJPI...")
-
-        first_page = pdf.pages[0]
-        text = first_page.extract_text()
-        
-        self.nome = re.search(r"Diário da Justiça", text, re.IGNORECASE).group(0)
-
-        meses = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"]
-        data_publicacao_raw = re.search(r"Publicação: ([^)]*), ([^)]*)", text, re.IGNORECASE).group(0)
-
-        dia = re.search(r"\d{1,2}", data_publicacao_raw).group(0)
-        ano = re.search(r"\d{4}", data_publicacao_raw).group(0)
-        mes = None
-        for i, mes in enumerate(meses):
-            if mes in data_publicacao_raw.lower():
-                mes = str(i + 1)
-                break
-        
-        self.data_publicacao = f"{dia.zfill(2)}-{mes.zfill(2)}-{ano}"   
-
-        self.numero = re.search(r"Nº\s*\d+", text, re.IGNORECASE).group(0).removeprefix("Nº").strip()
-
-    def _extract_metadata_govpi(self, pdf):
-        print("Extraindo metadados do diário do Governo do Piauí...")
-
-        # TODO: extrair nome do diário a partir do PDF, ao invés de hardcodar
-        self.nome = "Diário Oficial Governo do Piauí"
-
-        first_page = pdf.pages[0]
-        text = first_page.extract_text()
-
-        self.numero = re.search(r"Nº\s*\d+/\d{4}", text, re.IGNORECASE).group(0).removeprefix("nº").strip()
-
-        third_page = pdf.pages[2]
-        text = third_page.extract_text()
-
-        self.data_publicacao = re.search(r"Publicado:\s*\d{2}/\d{2}/\d{4}", text, re.IGNORECASE).group(0).removeprefix("Publicado:").replace("/", "-").strip()
-
-    def _extract_metadata_parnaiba(self, pdf):
-        # raise NotImplementedError("A extração de metadados para os diários de Parnaíba ainda não foi implementada.")
-        self.nome = "N/A"
-        self.data_publicacao = "N/A"
-        self.numero = "N/A"
 
     def __str__(self):
         return f"%s\nNome: %s\nData de Publicação: %s\nNúmero: %s\nLink do PDF: %s\n%s" % (
