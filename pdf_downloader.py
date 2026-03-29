@@ -8,13 +8,13 @@ class PDF_Downloader:
     def download_pdfs(scrapped_pdfs):
         path_to_downloaded_pdfs = []
 
-        for pdf_url, pdf_save_path in scrapped_pdfs:
+        for pdf_url, pdf_save_path, args in scrapped_pdfs:
             try:
                 PDF_Downloader._download_pdf(pdf_url, pdf_save_path)
             except Exception as e:
                 print(f"Error occurred while downloading PDF from {pdf_url}: {e}")
             finally:
-                path_to_downloaded_pdfs.append((pdf_url, pdf_save_path))
+                path_to_downloaded_pdfs.append((pdf_url, pdf_save_path, args))
         
         return path_to_downloaded_pdfs
     

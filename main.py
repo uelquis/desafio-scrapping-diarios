@@ -21,7 +21,8 @@ def main():
         with DiarioScrapper(playwright) as scrapper:
             downloaded_pdfs = PDF_Downloader.download_pdfs(scrapper.scrap(date))
 
-            diarios_metadata = [MetadataExtractor().get_metadata(pdf_url, pdf_path) for pdf_url, pdf_path in downloaded_pdfs]
+            diarios_metadata = [MetadataExtractor().get_metadata(pdf_url, pdf_path, args) 
+                for pdf_url, pdf_path, args in downloaded_pdfs]
 
             print("\nExportando metadados extraídos dos diários:")
             MetadataExporter(diarios_metadata).export_to_xlsx()

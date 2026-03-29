@@ -1,3 +1,5 @@
+import re
+from time import sleep
 import random
 from scrapper.config import SCRAPPER_CONFIG
 
@@ -45,7 +47,7 @@ class DiarioScrapper:
         pdf_url = new_page_info.value.url
         pdf_save_path = f"./downloads/diario_tjpi_{date.strftime('%d_%m_%Y')}.pdf"
         
-        return (pdf_url, pdf_save_path)
+        return (pdf_url, pdf_save_path, {})
 
     """Extrai os pdfs dos diários do Governo do Piauí para a data fornecida."""
     def _scrap_gov_pi(self, date):
@@ -65,7 +67,7 @@ class DiarioScrapper:
         pdf_url = new_page_info.value.url
         pdf_save_path = f"./downloads/diario_gov_pi_{date.strftime('%d_%m_%Y')}.pdf"
 
-        return (pdf_url, pdf_save_path)
+        return (pdf_url, pdf_save_path, {})
     
     """Extrai os pdfs dos diários do Prefeitura de Parnaíba para a data fornecida."""
     def _scrap_pref_parnaiba(self, date):
@@ -86,6 +88,18 @@ class DiarioScrapper:
         filtrar_btn.wait_for()
         filtrar_btn.click()
 
+        sleep(2)
+
+        # TODO: fix error:
+        # Locator.wait_for: Error: strict mode violation: locator("td.text-left") resolved to 6 elements
+        table_elements = self.page.locator("td.text-left")
+        table_elements.wait_for()
+
+        data_publicacao = re.search(r"\d{2}/\d{2}/\d{4}", 
+            table_elements.all()[3].inner_text()).group(0)
+            
+        print(data_publicacao)
+
         with self.context.expect_page() as new_page_info:
             download_btn = self.page.locator("button[aria-label='Abrir diário em nova aba']").first
             download_btn.wait_for()
@@ -94,7 +108,7 @@ class DiarioScrapper:
         pdf_url = new_page_info.value.url
         pdf_save_path = f"./downloads/diario_pref_parnaiba_{date.strftime('%d_%m_%Y')}.pdf"
 
-        return (pdf_url, pdf_save_path)
+        return (pdf_url, pdf_save_path, {"data_publicacao_parnaiba": data_publicacao})
 
     def __enter__(self):
         return self
