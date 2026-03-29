@@ -1,7 +1,7 @@
 import re, sys
 from datetime import datetime
 from playwright.sync_api import sync_playwright
-from diario_metadata import DiarioMetadata, MetadataExporter
+from diario_metadata import MetadataExtractor, MetadataExporter
 from pdf_downloader import PDF_Downloader
 from scrapper import DiarioScrapper
 
@@ -21,7 +21,7 @@ def main():
         with DiarioScrapper(playwright) as scrapper:
             downloaded_pdfs = PDF_Downloader.download_pdfs(scrapper.scrap(date))
 
-            diarios_metadata = [DiarioMetadata(pdf_url, pdf_path) for pdf_url, pdf_path in downloaded_pdfs]
+            diarios_metadata = [MetadataExtractor().get_metadata(pdf_url, pdf_path) for pdf_url, pdf_path in downloaded_pdfs]
 
             print("\nExportando metadados extraídos dos diários:")
             MetadataExporter(diarios_metadata).export_to_xlsx()
