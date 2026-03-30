@@ -13,7 +13,7 @@ class MetadataExtractor:
     def __init__(self):
         self.metadata = DiarioMetadata()
 
-    def get_metadata(self, pdf_url, pdf_path):
+    def get_metadata(self, pdf_url, pdf_path, args):
 
         self.metadata.link_pdf = pdf_url
 
@@ -24,7 +24,7 @@ class MetadataExtractor:
             elif "gov_pi" in pdf_path:
                 self._extract_metadata_govpi(pdf)
             elif "pref_parnaiba" in pdf_path:
-                self._extract_metadata_parnaiba(pdf)
+                self._extract_metadata_parnaiba(pdf, args)
             else:
                 raise ValueError(f"Não foi possível identificar o tipo do diário com base no nome do arquivo: {pdf_path}")
             
@@ -34,11 +34,10 @@ class MetadataExtractor:
     def _extract_metadata_tjpi(self, pdf):
         print("Extraindo metadados do diário do TJPI...")
 
-        first_page = pdf.pages[0]
-        text = first_page.extract_text()
+        second_page = pdf.pages[1]
+        text = second_page.extract_text()
         
-        # TODO: extrair nome do diário a partir do PDF, ao invés de hardcodar
-        self.metadata.nome = re.search(r"Diário da Justiça", text, re.IGNORECASE).group(0)
+        self.metadata.nome = text.split("\n")[0]
 
         meses = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"]
         data_publicacao_raw = re.search(r"Publicação: ([^)]*), ([^)]*)", text, re.IGNORECASE).group(0)
@@ -58,11 +57,10 @@ class MetadataExtractor:
     def _extract_metadata_govpi(self, pdf):
         print("Extraindo metadados do diário do Governo do Piauí...")
 
-        # TODO: extrair nome do diário a partir do PDF, ao invés de hardcodar
-        self.metadata.nome = "Diário Oficial Governo do Piauí"
-
         first_page = pdf.pages[0]
         text = first_page.extract_text()
+
+        self.metadata.nome = text.split("\n")[2].strip().split("-")[0]
 
         self.metadata.numero = re.search(r"Nº\s*\d+/\d{4}", text, re.IGNORECASE).group(0).removeprefix("nº").strip()
 
@@ -71,7 +69,7 @@ class MetadataExtractor:
 
         self.metadata.data_publicacao = re.search(r"Publicado:\s*\d{2}/\d{2}/\d{4}", text, re.IGNORECASE).group(0).removeprefix("Publicado:").replace("/", "-").strip()
 
-    def _extract_metadata_parnaiba(self, pdf):
+    def _extract_metadata_parnaiba(self, pdf, args):
         print("Extraindo metadados do diário da Prefeitura de Parnaíba...")
 
         first_page = pdf.pages[0]
@@ -79,9 +77,15 @@ class MetadataExtractor:
 
         self.metadata.numero = re.search(r"Nº\s*\d+", text, re.IGNORECASE).group(0).removeprefix("Nº").strip()
 
-        # TODO: extrair nome do diário, ao invés de hardcodar
-        self.metadata.nome = "DOM Parbaíba"
+        second_page = pdf.pages[1]
+        text = second_page.extract_text()
 
-        # TODO: a data de publicação não está presente no PDF
-        self.metadata.data_publicacao = "N/A"
+        # info: nome extraido do cabeçalho
+        diario_nome = " ".join(text.split("\n")[0].split()[2].split("-")[:2])
+
+        self.metadata.nome = diario_nome
+
+        # info: a data de publicação não está no pdf do diário.
+        # então ela foi extraída diretamente do portal do município.
+        self.metadata.data_publicacao = args['data_publicacao_parnaiba']
         

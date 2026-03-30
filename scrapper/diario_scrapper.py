@@ -50,6 +50,7 @@ class DiarioScrapper:
         return (pdf_url, pdf_save_path, {})
 
     """Extrai os pdfs dos diários do Governo do Piauí para a data fornecida."""
+    """Extrai os pdfs dos diários do Governo do Piauí para a data fornecida."""
     def _scrap_gov_pi(self, date):
         
         self.page.goto(SCRAPPER_CONFIG['diarios']['gov_pi'])
@@ -71,6 +72,7 @@ class DiarioScrapper:
 
         return (pdf_url, pdf_save_path, {})
     
+    """Extrai os pdfs dos diários do Prefeitura de Parnaíba para a data fornecida."""
     """Extrai os pdfs dos diários do Prefeitura de Parnaíba para a data fornecida."""
     def _scrap_pref_parnaiba(self, date):
         
