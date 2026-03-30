@@ -3,7 +3,7 @@ from time import sleep
 import random
 from scrapper.config import SCRAPPER_CONFIG
 
-
+# TODO: extrair diários de caderno único e os diário complementares
 class DiarioScrapper:
     def __init__(self, playwright):
         self.user_agents = [
@@ -59,6 +59,8 @@ class DiarioScrapper:
         
         date_input.fill(date.strftime("%Y-%m-%d"))
 
+        sleep(2)
+
         with self.context.expect_page() as new_page_info:
             download_btn = self.page.locator("td a").first
             download_btn.wait_for()
@@ -90,15 +92,11 @@ class DiarioScrapper:
 
         sleep(2)
 
-        # TODO: fix error:
-        # Locator.wait_for: Error: strict mode violation: locator("td.text-left") resolved to 6 elements
-        table_elements = self.page.locator("td.text-left")
-        table_elements.wait_for()
+        data_publicacao = self.page.locator("td.text-left").nth(4)
+        data_publicacao.wait_for()
 
         data_publicacao = re.search(r"\d{2}/\d{2}/\d{4}", 
-            table_elements.all()[3].inner_text()).group(0)
-            
-        print(data_publicacao)
+           data_publicacao.inner_text()).group(0)
 
         with self.context.expect_page() as new_page_info:
             download_btn = self.page.locator("button[aria-label='Abrir diário em nova aba']").first
