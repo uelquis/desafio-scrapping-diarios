@@ -31,6 +31,9 @@ def scrap(date, ctx):
                 scrapped_diarios = [
                     govpi_scrapper.scrap(date),
                     tjpi_scrapper.scrap(date),
+                    # TODO: resolver o problema desse erro ao tentar abrir o link de download do diário
+                    # Erro ao abrir link
+                    # Erro ao processar arquivo: mkdir(): No space left on device
                     # parnaiba_scrapper.scrap(date)
                 ]
                 

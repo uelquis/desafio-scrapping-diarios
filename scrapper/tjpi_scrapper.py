@@ -17,26 +17,28 @@ class TJPI_Scrapper(DiarioScrapper):
         submit_btn.wait_for()
         submit_btn.click()
 
-        with self.context.expect_page() as new_page_info:
-            pdf_btn = self.page.locator('a:has-text("PDF")').first
-            pdf_btn.wait_for()
-            pdf_btn.click()
+        download_btns = self.page.locator('a:has-text("PDF")')
 
-            # TODO: click all download pdf buttons
-            # pdf_btns = self.page.locator('a:has-text("PDF")')
-
-            # try:
-            #     pdf_btns.wait_for()
-            # except Exception as err:
-            #     print(err)
-            # finally:
-            #     pdf_btns.all()
-
-            # sleep(10)
-            #
-            # pdf_btn.click()
-
-        pdf_url = new_page_info.value.url
-        pdf_save_path = f"./downloads/diario_tjpi_{date.strftime('%d_%m_%Y')}.pdf"
+        urls, save_paths = self._click_all(date, download_btns)
         
-        return ScrappedData([pdf_url], [pdf_save_path], {})
+        return ScrappedData(urls, save_paths, {})
+    
+    def _click_all(self, date, btns):
+        urls = []
+        save_paths = []
+
+        try:
+            btns.wait_for()
+        except Exception as err:
+            pass
+        finally:
+            index = 0
+            for btn in btns.all():
+                with self.context.expect_page() as new_page_info:
+                    btn.click()
+
+                    urls.append(new_page_info.value.url)
+                    save_paths.append(f"./downloads/diario_tjpi_{date.strftime('%d_%m_%Y')}{"" if index == 0 else f"__{index+1}"}.pdf")
+                    index += 1
+        
+        return (urls, save_paths)

@@ -46,5 +46,6 @@ class ScrappedData:
     def __init__(self, urls: List[str], save_paths: List[str], args: Dict):
         self.urls = urls
         self.save_paths = save_paths
-        self.args = args   
+        self.args = args
+        self.count = len(urls)   
     
