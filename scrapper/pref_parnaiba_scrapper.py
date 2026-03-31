@@ -31,12 +31,30 @@ class PrefParnaiba_Scrapper(DiarioScrapper):
         data_publicacao = re.search(r"\d{2}/\d{2}/\d{4}", 
            data_publicacao.inner_text()).group(0) # type: ignore
 
-        with self.context.expect_page() as new_page_info:
-            download_btn = self.page.locator("button[aria-label='Abrir diário em nova aba']").first
-            download_btn.wait_for()
-            download_btn.click()
+        download_btns = self.page.locator("button[aria-label='Abrir diário em nova aba']")
 
-        pdf_url = (new_page_info.value).url
-        pdf_save_path = f"./downloads/diario_pref_parnaiba_{date.strftime('%d_%m_%Y')}.pdf"
+        urls, save_paths = self._click_all(date, download_btns)
 
-        return ScrappedData([pdf_url], [pdf_save_path], {"data_publicacao_parnaiba": data_publicacao})
+        return ScrappedData(urls, save_paths, {"data_publicacao_parnaiba": data_publicacao})
+
+    def _click_all(self, date, btns):
+        urls = []
+        save_paths = []
+
+        try:
+            btns.wait_for()
+        except Exception as err:
+            print(err)
+        finally:
+            index = 0
+            for btn in btns.all():
+                with self.context.expect_page() as new_page_info:
+                    btn.click()
+
+                    urls.append(new_page_info.value.url)
+                    save_paths.append(f"./downloads/diario_pref_parnaiba_{date.strftime('%d_%m_%Y')}{"" if index == 0 else f"__{index+1}"}.pdf")
+                    index += 1
+
+                    new_page_info.value.close()
+        
+        return (urls, save_paths)
