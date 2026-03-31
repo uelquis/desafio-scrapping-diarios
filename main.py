@@ -22,35 +22,28 @@ def main():
 
 def scrap(date, ctx):
     with (
-            GovPI_Scrapper(ctx) as govpi_scrapper, 
-            TJPI_Scrapper(ctx) as tjpi_scrapper,
-            PrefParnaiba_Scrapper(ctx) as parnaiba_scrapper
-        ):
-            scrapped_diarios = []
-            try:
-                scrapped_diarios = [
-                    govpi_scrapper.scrap(date),
-                    tjpi_scrapper.scrap(date),
-                    # TODO: resolver o problema desse erro ao tentar abrir o link de download do diário
-                    # Erro ao abrir link
-                    # Erro ao processar arquivo: mkdir(): No space left on device
-                    # parnaiba_scrapper.scrap(date)
-                ]
-                
-            except TimeoutError as err:
-                print(f"Não foi possível scrappar um ou mais diários: {err}")
-            except Exception as err:
-                print(f"Erro inesperado: {err}")
-            finally:
-
-                if len(scrapped_diarios) == 0:
-                    raise ValueError("scrapped_diarios está vazio!")
-                
-                PDF_Downloader.download_pdfs(scrapped_diarios)
-
-                diarios_metadata = [MetadataExtractor().get_metadata(diario) for diario in scrapped_diarios]
+        GovPI_Scrapper(ctx) as govpi_scrapper, 
+        TJPI_Scrapper(ctx) as tjpi_scrapper,
+        PrefParnaiba_Scrapper(ctx) as parnaiba_scrapper
+    ):
+        scrapped_diarios = []
+        try:
+            scrapped_diarios.append(govpi_scrapper.scrap(date))
+            scrapped_diarios.append(tjpi_scrapper.scrap(date))
+            scrapped_diarios.append(parnaiba_scrapper.scrap(date))
             
-                MetadataExporter(diarios_metadata).export_to_xlsx()
+        except TimeoutError as err:
+            print(f"Não foi possível scrappar um ou mais diários: {err}")
+        except Exception as err:
+            print(f"Erro inesperado: {err}")
+        finally:
+            if len(scrapped_diarios) == 0:
+                raise ValueError("scrapped_diarios está vazio!")
+            
+            PDF_Downloader.download_pdfs(scrapped_diarios)
+            diarios_metadata = [MetadataExtractor().get_metadata(diario) for diario in scrapped_diarios]
+        
+            MetadataExporter(diarios_metadata).export_to_xlsx()
 
 if __name__ == '__main__':
     main()

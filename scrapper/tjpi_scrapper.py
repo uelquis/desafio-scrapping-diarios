@@ -40,5 +40,7 @@ class TJPI_Scrapper(DiarioScrapper):
                     urls.append(new_page_info.value.url)
                     save_paths.append(f"./downloads/diario_tjpi_{date.strftime('%d_%m_%Y')}{"" if index == 0 else f"__{index+1}"}.pdf")
                     index += 1
+
+                    new_page_info.value.close()
         
         return (urls, save_paths)

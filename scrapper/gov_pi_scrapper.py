@@ -40,6 +40,8 @@ class GovPI_Scrapper(DiarioScrapper):
                     save_paths.append(f"./downloads/diario_gov_pi_{date.strftime('%d_%m_%Y')}{"" if index == 0 else f"__{index+1}"}.pdf")
                     index += 1
 
+                    new_page_info.value.close()
+
         return (urls, save_paths)
 
     def _filter_btns(self, btns):
