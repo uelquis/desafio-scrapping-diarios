@@ -1,22 +1,23 @@
 
 import os, requests
+from typing import List
 from pathlib import Path
+
+from scrapper import ScrappedData
 
 class PDF_Downloader:
 
     @staticmethod
-    def download_pdfs(scrapped_pdfs):
+    def download_pdfs(scrapped_diarios: List[ScrappedData]):
         path_to_downloaded_pdfs = []
 
-        for pdf_url, pdf_save_path, args in scrapped_pdfs:
+        for diario in scrapped_diarios:
             try:
-                PDF_Downloader._download_pdf(pdf_url, pdf_save_path)
+                PDF_Downloader._download_pdf(diario.urls[0], diario.save_paths[0])
             except Exception as e:
-                print(f"Error occurred while downloading PDF from {pdf_url}: {e}")
+                print(f"Error occurred while downloading PDF from {diario.urls[0]}: {e}")
             finally:
-                path_to_downloaded_pdfs.append((pdf_url, pdf_save_path, args))
-        
-        return path_to_downloaded_pdfs
+                path_to_downloaded_pdfs.append((diario.urls[0],  diario.save_paths[0], diario.args))
     
     @staticmethod
     def _download_pdf(url, save_path):

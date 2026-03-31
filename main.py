@@ -3,7 +3,7 @@ from datetime import datetime
 from playwright.sync_api import sync_playwright
 from diario_metadata import MetadataExtractor, MetadataExporter
 from pdf_downloader import PDF_Downloader
-from scrapper import DiarioScrapper
+from scrapper import DiarioScrapper, GovPI_Scrapper, TJPI_Scrapper, PrefParnaiba_Scrapper
 
 def main():
     if len(sys.argv) == 1:
@@ -17,15 +17,37 @@ def main():
 
     date = datetime.strptime(sys.argv[1], "%d-%m-%Y")
 
-    with sync_playwright() as playwright:   
-        with DiarioScrapper(playwright) as scrapper:
-            downloaded_pdfs = PDF_Downloader.download_pdfs(scrapper.scrap(date))
+    with sync_playwright() as playwright:
+        scrap(date, DiarioScrapper.init_browser_context(playwright))
 
-            diarios_metadata = [MetadataExtractor().get_metadata(pdf_url, pdf_path, args) 
-                for pdf_url, pdf_path, args in downloaded_pdfs]
+def scrap(date, ctx):
+    with (
+            GovPI_Scrapper(ctx) as govpi_scrapper, 
+            TJPI_Scrapper(ctx) as tjpi_scrapper,
+            PrefParnaiba_Scrapper(ctx) as parnaiba_scrapper
+        ):
+            scrapped_diarios = []
+            try:
+                scrapped_diarios = [
+                    govpi_scrapper.scrap(date),
+                    tjpi_scrapper.scrap(date),
+                    # parnaiba_scrapper.scrap(date)
+                ]
+                
+            except TimeoutError as err:
+                print(f"Não foi possível scrappar um ou mais diários: {err}")
+            except Exception as err:
+                print(f"Erro inesperado: {err}")
+            finally:
 
-            print("\nExportando metadados extraídos dos diários:")
-            MetadataExporter(diarios_metadata).export_to_xlsx()
+                if len(scrapped_diarios) == 0:
+                    raise ValueError("scrapped_diarios está vazio!")
+                
+                PDF_Downloader.download_pdfs(scrapped_diarios)
+
+                diarios_metadata = [MetadataExtractor().get_metadata(diario) for diario in scrapped_diarios]
+            
+                MetadataExporter(diarios_metadata).export_to_xlsx()
 
 if __name__ == '__main__':
     main()
