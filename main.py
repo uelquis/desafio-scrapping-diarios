@@ -30,6 +30,7 @@ def scrap(date, ctx):
         try:
             scrapped_diarios.append(govpi_scrapper.scrap(date))
             scrapped_diarios.append(tjpi_scrapper.scrap(date))
+            # TODO: implementar completamente o scrapping de diários de cadernos únicos suplementares
             scrapped_diarios.append(parnaiba_scrapper.scrap(date))
             
         except TimeoutError as err:
@@ -41,8 +42,11 @@ def scrap(date, ctx):
                 raise ValueError("scrapped_diarios está vazio!")
             
             PDF_Downloader.download_pdfs(scrapped_diarios)
+
+            # TODO: refatorar MetadataExtractor
             diarios_metadata = [MetadataExtractor().get_metadata(diario) for diario in scrapped_diarios]
         
+            # TODO: refatorar MetadataExporter
             MetadataExporter(diarios_metadata).export_to_xlsx()
 
 if __name__ == '__main__':
