@@ -29,12 +29,17 @@ def scrap(date, ctx):
             scrapped_diarios = []
             try:
                 scrapped_diarios = [
+                    # TODO: garantir que vão seguir o padrão de quais cadernos são suplementares/extraordinários
+                    # e quais são únicos. Ex:
+                    #   - final "__n" indica que é suplementar/extraordinário
+                    #   - final ausente indica caderno único
                     govpi_scrapper.scrap(date),
                     tjpi_scrapper.scrap(date),
-                    # TODO: resolver o problema desse erro ao tentar abrir o link de download do diário
-                    # Erro ao abrir link
-                    # Erro ao processar arquivo: mkdir(): No space left on device
-                    # parnaiba_scrapper.scrap(date)
+                    # TODO: checar um perído de dois dias para conseguir todos os diarios.
+                    # as vezes um diário é disponibilizado e publicado em datas diferentes.
+                    # ex: 02/02 -> 02/02 - caderno único
+                    #     02/02 -> 03/02 - caderno suplementar/extraordinário
+                    parnaiba_scrapper.scrap(date)
                 ]
                 
             except TimeoutError as err:
