@@ -33,14 +33,26 @@ class GovPI_Scrapper(DiarioScrapper):
         finally:
             index = 0
             for btn in self._filter_btns(btns.all()):
-                with self.context.expect_page() as new_page_info:
-                    btn.click()
+                url, save_path = self._click_btn(btn, date, index)
 
-                    urls.append(new_page_info.value.url)
-                    save_paths.append(f"./downloads/diario_gov_pi_{date.strftime('%d_%m_%Y')}{"" if index == 0 else f"__{index+1}"}.pdf")
-                    index += 1
+                urls.append(url)
+                save_paths.append(save_path)
+
+                index += 1
 
         return (urls, save_paths)
+    
+    def _click_btn(self, btn, date, index):
+        with self.context.expect_page() as new_page_info:
+            btn.click()
+
+            url = new_page_info.value.url
+
+            save_path = f"./downloads/diario_gov_pi_{date.strftime('%d_%m_%Y')}{"" if index == 0 else f"__{index+1}"}.pdf"
+            
+            new_page_info.value.close()
+
+            return (url, save_path)
 
     def _filter_btns(self, btns):
         filtered_btns = []
