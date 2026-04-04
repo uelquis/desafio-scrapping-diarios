@@ -1,9 +1,10 @@
-import re, sys
+import re, sys, pdfplumber
 from datetime import datetime
 from playwright.sync_api import sync_playwright
-from diario_metadata import MetadataExtractor, MetadataExporter
+from diario_metadata import MetadataExporter, GovPI_MetadataExtractor, PrefParnabiba_MetadataExtractor, TJPI_MetadataExtractor
 from pdf_downloader import PDF_Downloader
 from scrapper import DiarioScrapper, GovPI_Scrapper, TJPI_Scrapper, PrefParnaiba_Scrapper
+from scrapper import ScrappedData
 
 def main():
     if len(sys.argv) == 1:
@@ -34,7 +35,6 @@ def scrap(date, ctx):
             #   - final ausente indica caderno único
             scrapped_diarios.append(govpi_scrapper.scrap(date))
             scrapped_diarios.append(tjpi_scrapper.scrap(date))
-            # TODO: implementar completamente o scrapping de diários de cadernos únicos suplementares
             scrapped_diarios.append(parnaiba_scrapper.scrap(date))
             
         except TimeoutError as err:
@@ -47,11 +47,43 @@ def scrap(date, ctx):
             
             PDF_Downloader.download_pdfs(scrapped_diarios)
 
-            # TODO: refatorar MetadataExtractor
-            diarios_metadata = [MetadataExtractor().get_metadata(diario) for diario in scrapped_diarios]
-        
+            diarios_metadata = get_metadata(scrapped_diarios)
+
             # TODO: refatorar MetadataExporter
             MetadataExporter(diarios_metadata).export_to_xlsx()
+
+
+def get_metadata(scrapped_diarios):
+
+    scrapped_data = []
+    args = []
+    for diario in scrapped_diarios:
+        scrapped_data.append(diario)
+        args.append(diario.args)
+
+    save_paths = [path for data in scrapped_data for path in data.save_paths]
+    pdf_urls = [url for data in scrapped_data for url in data.urls]
+
+    datas_publicacao_parnaiba = args[2]['datas_publicacao_parnaiba']
+    index = 0
+
+    metadata = []
+
+    # TODO: concertar o nome dos diários
+    for path, url in zip(save_paths, pdf_urls):
+        with pdfplumber.open(path) as pdf:
+            if "gov_pi" in path: metadata.append(GovPI_MetadataExtractor().extract(pdf, url))
+
+            elif "tjpi" in path: metadata.append(TJPI_MetadataExtractor().extract(pdf, url))
+            
+            elif "pref_parnaiba" in path: 
+                metadata.append(PrefParnabiba_MetadataExtractor().extract(pdf, url, datas_publicacao_parnaiba[index]))
+                index += 1
+            
+            else: raise ValueError(f"Não foi possível identificar o tipo do diário com base no nome do arquivo: {path}")
+
+    return metadata  
+
 
 if __name__ == '__main__':
     main()

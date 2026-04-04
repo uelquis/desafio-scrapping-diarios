@@ -40,8 +40,6 @@ class GovPI_Scrapper(DiarioScrapper):
 
                 index += 1
 
-                    new_page_info.value.close()
-
         return (urls, save_paths)
     
     def _click_btn(self, btn, date, index):

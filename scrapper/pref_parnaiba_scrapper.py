@@ -44,7 +44,7 @@ class PrefParnaiba_Scrapper(DiarioScrapper):
 
             urls, save_paths = self._click_all(data, download_btns)
 
-        return ScrappedData(urls, save_paths, {"datas_publicacao_parnaiba": datas_publicacao})
+        return ScrappedData(urls, save_paths, { "datas_publicacao_parnaiba": datas_publicacao })
 
     def _extrair_datas_publicacao(self, rows):
         return [row.inner_text().split("\t")[4].split(" ")[0] for row in rows]

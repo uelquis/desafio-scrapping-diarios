@@ -1,3 +1,6 @@
 
 from .metadata_extractor import MetadataExtractor
 from .metadata_exporter import MetadataExporter
+from .gov_pi_extractor import GovPI_MetadataExtractor
+from .tjpi_extractor import TJPI_MetadataExtractor
+from .pref_parnaiba_extractor import PrefParnabiba_MetadataExtractor

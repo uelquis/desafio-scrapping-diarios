@@ -1,4 +1,4 @@
-import re, random
+import random
 from datetime import date
 from time import sleep
 from typing import Dict, List
