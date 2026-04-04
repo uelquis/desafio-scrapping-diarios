@@ -28,6 +28,10 @@ def scrap(date, ctx):
     ):
         scrapped_diarios = []
         try:
+            # TODO: garantir que vão seguir o padrão de quais cadernos são suplementares/extraordinários
+            # e quais são únicos. Ex:
+            #   - final "__n" indica que é suplementar/extraordinário
+            #   - final ausente indica caderno único
             scrapped_diarios.append(govpi_scrapper.scrap(date))
             scrapped_diarios.append(tjpi_scrapper.scrap(date))
             # TODO: implementar completamente o scrapping de diários de cadernos únicos suplementares
