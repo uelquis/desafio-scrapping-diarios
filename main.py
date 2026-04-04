@@ -35,10 +35,6 @@ def scrap(date, ctx):
                     #   - final ausente indica caderno único
                     govpi_scrapper.scrap(date),
                     tjpi_scrapper.scrap(date),
-                    # TODO: checar um perído de dois dias para conseguir todos os diarios.
-                    # as vezes um diário é disponibilizado e publicado em datas diferentes.
-                    # ex: 02/02 -> 02/02 - caderno único
-                    #     02/02 -> 03/02 - caderno suplementar/extraordinário
                     parnaiba_scrapper.scrap(date)
                 ]
                 
