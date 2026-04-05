@@ -12,7 +12,18 @@ class TJPI_MetadataExtractor(MetadataExtractor):
         second_page = pdf.pages[1]
         text = second_page.extract_text()
         
-        metadata.nome = text.split("\n")[0]
+        linhas_cabecalho = []
+        for linha in text.split("\n"):
+            if re.match("ANO", linha):
+                break
+            
+            linhas_cabecalho.append(linha)
+
+        if len(linhas_cabecalho) == 1:
+            metadata.nome = linhas_cabecalho[0]
+        elif len(linhas_cabecalho) == 2:
+            metadata.nome = f"{linhas_cabecalho[1]} {linhas_cabecalho[0]}"
+        else: raise Exception("cabeçalho maior do que o esperado!")
 
         meses = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"]
         data_publicacao_raw = re.search(r"Publicação: ([^)]*), ([^)]*)", text, re.IGNORECASE).group(0) # type: ignore
