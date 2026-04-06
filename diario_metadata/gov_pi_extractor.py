@@ -13,7 +13,7 @@ class GovPI_MetadataExtractor(MetadataExtractor):
 
         lines = text.split("\n")
 
-        metadata.nome = lines[2].strip().split("-")[0] if len(lines) == 3 else f"{lines[3].strip().split("-")[0]}{lines[0].strip().strip("-")}"
+        metadata.nome = lines[2].strip().split("-")[0] if len(lines) == 3 else f"{lines[3].strip().split("-")[0]}" # {lines[0].strip().strip("-")}"
 
         metadata.numero = re.search(r"Nº\s*\d+/\d{4}", text, re.IGNORECASE).group(0).removeprefix("nº").strip() # type: ignore
 

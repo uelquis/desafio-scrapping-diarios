@@ -30,6 +30,6 @@ class PrefParnabiba_MetadataExtractor(MetadataExtractor):
         text = second_page.extract_text()
 
         # info: nome extraido do cabeçalho
-        metadata.nome = " ".join(text.split("\n")[0].split()[2].split("-")[:2]) + " " + tipo_nome
+        metadata.nome = " ".join(text.split("\n")[0].split()[2].split("-")[:2]) # + " " + tipo_nome
 
         return metadata

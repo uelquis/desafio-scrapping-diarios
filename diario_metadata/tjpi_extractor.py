@@ -22,7 +22,7 @@ class TJPI_MetadataExtractor(MetadataExtractor):
         if len(linhas_cabecalho) == 1:
             metadata.nome = linhas_cabecalho[0]
         elif len(linhas_cabecalho) == 2:
-            metadata.nome = f"{linhas_cabecalho[1]} {linhas_cabecalho[0]}"
+            metadata.nome = f"{linhas_cabecalho[1]}" # {linhas_cabecalho[0]}"
         else: raise Exception("cabeçalho maior do que o esperado!")
 
         meses = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"]

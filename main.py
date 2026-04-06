@@ -49,7 +49,6 @@ def scrap(date, ctx):
 
             diarios_metadata = get_metadata(scrapped_diarios)
 
-            # TODO: refatorar MetadataExporter
             MetadataExporter(diarios_metadata).export_to_xlsx()
 
 
@@ -69,7 +68,6 @@ def get_metadata(scrapped_diarios):
 
     metadata = []
 
-    # TODO: concertar o nome dos diários
     for path, url in zip(save_paths, pdf_urls):
         with pdfplumber.open(path) as pdf:
             if "gov_pi" in path: metadata.append(GovPI_MetadataExtractor().extract(pdf, url))
